@@ -1,15 +1,27 @@
+import 'package:event_planning_app/Providers/SettingProviders.dart';
+import 'package:event_planning_app/UI/Onboarding/ToggleLanguage.dart';
 import 'package:event_planning_app/Utils/AppAssets.dart';
 import 'package:event_planning_app/Utils/AppColors.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:provider/provider.dart';
+import '../../Utils/AppStyle.dart';
+import 'ToggleTheme.dart';
 
-class Onboarding extends StatelessWidget {
+class Onboarding extends StatefulWidget {
   static const routeName = 'Onboarding';
 
   const Onboarding({super.key});
 
   @override
+  State<Onboarding> createState() => _OnboardingState();
+}
+
+class _OnboardingState extends State<Onboarding> {
+  @override
   Widget build(BuildContext context) {
+    var settingProviders = Provider.of<SettingProviders>(context);
+
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
 
@@ -24,54 +36,55 @@ class Onboarding extends StatelessWidget {
         padding: EdgeInsets.symmetric(
             vertical: height * 0.05, horizontal: width * 0.05),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Image.asset(AppAssets.Onboarding),
 
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Text(
-                'personalize'.tr(),
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+                'personalize',
+                style: AppStyle.bold20PrimaryLight,
+              ).tr(),
             ),
 
             // Description Text
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Text(
-                'prg_personalize'.tr(), // This should also be translated
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[600],
-                ),
-                textAlign: TextAlign.center,
-              ),
+                'prg_personalize', // This should also be translated
+                style: AppStyle.light16Black,
+              ).tr(),
             ),
 
-            _buildActionRow(context, 'language'.tr()),
-            _buildActionRow(context, 'theme'.tr()),
+            // SwitchButton for language
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'language',
+                      style: AppStyle.light20PrimaryLight,
+                    ).tr(),
+                    ToggleLanguage(),
+                  ]),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'theme',
+                      style: AppStyle.light20PrimaryLight,
+                    ).tr(),
+                    ToggleTheme()
+                  ]),
+            ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildActionRow(BuildContext context, String text) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          text,
-          style: TextStyle(fontSize: 16),
-        ),
-        IconButton(
-          icon: Icon(Icons.swap_horizontal_circle),
-          onPressed: () {},
-        ),
-      ],
     );
   }
 }
