@@ -1,5 +1,6 @@
 import 'package:event_planning_app/UI/HomeScreen/HomeScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:event_planning_app/UI/Onboarding/IntroScreen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
@@ -42,10 +43,11 @@ class MyApp extends StatelessWidget {
           darkTheme: AppTheme.darkTheme,
           debugShowCheckedModeBanner: false,
           title: 'EventPlanningApp',
-          initialRoute: HomeScreen.routeName,
+          initialRoute: Onboarding.routeName,
           routes: {
             Onboarding.routeName: (context) => const Onboarding(),
             HomeScreen.routeName: (context) => const HomeScreen(),
+            IntroScreen.routeName: (context) => const IntroScreen(),
           },
         );
       }

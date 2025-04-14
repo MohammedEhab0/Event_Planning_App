@@ -1,4 +1,5 @@
 import 'package:event_planning_app/Providers/SettingProviders.dart';
+import 'package:event_planning_app/UI/Onboarding/IntroScreen.dart';
 import 'package:event_planning_app/UI/Onboarding/ToggleLanguage.dart';
 import 'package:event_planning_app/Utils/AppAssets.dart';
 import 'package:event_planning_app/Utils/AppColors.dart';
@@ -32,57 +33,80 @@ class _OnboardingState extends State<Onboarding> {
         title: Image.asset(AppAssets.logo),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(
-            vertical: height * 0.05, horizontal: width * 0.05),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Image.asset(AppAssets.Onboarding),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+              vertical: height * 0.05, horizontal: width * 0.05),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Image.asset(AppAssets.Onboarding),
 
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Text(
-                'personalize',
-                style: AppStyle.bold20PrimaryLight,
-              ).tr(),
-            ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                  'personalize',
+                  style: AppStyle.bold20PrimaryLight,
+                ).tr(),
+              ),
 
-            // Description Text
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Text(
-                'prg_personalize', // This should also be translated
-                style: AppStyle.light16Black,
-              ).tr(),
-            ),
+              // Description Text
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                  'prg_personalize', // This should also be translated
+                  style: AppStyle.light16Black,
+                ).tr(),
+              ),
 
-            // SwitchButton for language
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'language',
-                      style: AppStyle.light20PrimaryLight,
-                    ).tr(),
-                    ToggleLanguage(),
-                  ]),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'theme',
-                      style: AppStyle.light20PrimaryLight,
-                    ).tr(),
-                    ToggleTheme()
-                  ]),
-            ),
-          ],
+              // SwitchButton for language
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'language',
+                        style: AppStyle.light20PrimaryLight,
+                      ).tr(),
+                      ToggleLanguage(),
+                    ]),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'theme',
+                        style: AppStyle.light20PrimaryLight,
+                      ).tr(),
+                      ToggleTheme()
+                    ]),
+
+              ),  SizedBox(height: height * .02),
+              ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      padding: EdgeInsets.symmetric(
+                          vertical: height * .02, horizontal: width * .08),
+                      backgroundColor: AppColors.primarylight),
+                  onPressed: () {
+                    Navigator.of(context)
+                        .pushReplacementNamed(IntroScreen.routeName);
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'start'.tr(),
+                        style: AppStyle.bold20White,
+                      ),
+                    ],
+                  ))
+            ],
+          ),
         ),
       ),
     );

@@ -23,8 +23,9 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> bottomTabsList = [
     HomeTab(),
     MapTab(),
-    ProfileTab(),
     HeartTab(),
+    ProfileTab(),
+
   ];
 
   @override

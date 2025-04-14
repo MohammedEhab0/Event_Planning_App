@@ -27,4 +27,5 @@ class AppAssets {
   static String user = 'assets/images/User.png';
   static String user1 = 'assets/images/User1.png';
   static String workshop = 'assets/images/workshop.png';
+  static String routeProfile = 'assets/images/RouteProfile.png';
 }

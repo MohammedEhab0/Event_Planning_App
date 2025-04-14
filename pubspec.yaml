@@ -41,6 +41,8 @@ dependencies:
   lite_rolling_switch: ^1.0.1
   animated_toggle_switch: ^0.8.4
   icons_plus: ^5.0.0
+  dropdown_button2: ^2.3.9
+  introduction_screen: ^3.1.12
 
 dev_dependencies:
   flutter_test:
