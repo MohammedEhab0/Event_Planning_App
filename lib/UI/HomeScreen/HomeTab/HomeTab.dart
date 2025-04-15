@@ -1,6 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeTab/EventItem.dart';
-import 'package:event_planning_app/UI/HomeScreen/HomeTab/TabBarItem.dart';
+import 'package:event_planning_app/UI/HomeScreen/HomeTab/EventBarItem.dart';
 import 'package:event_planning_app/Utils/AppAssets.dart';
 import 'package:event_planning_app/Utils/AppColors.dart';
 import 'package:event_planning_app/Utils/AppStyle.dart';
@@ -115,7 +115,9 @@ class _HomeTabState extends State<HomeTab> {
                     tabAlignment: TabAlignment.start,
                     isScrollable: true,
                     tabs: tabBarList
-                        .map((e) => TabBarItem(
+                        .map((e) => EventBarItem(textSelectedStyle:AppStyle.bold16PrimaryLight, textUnSelectedStyle:AppStyle.bold16White
+                      ,unSelectedColor:AppColors.primarylight,
+                       selectedColor:AppColors.white,
                               text: e.text,
                               tabIcon: e.iconTab,
                               isSelected: selectedIndex == tabBarList.indexOf(e)

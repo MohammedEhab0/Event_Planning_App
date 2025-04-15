@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:event_planning_app/UI/HomeScreen/CreateEvent/CreateEvent.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeTab/HomeTab.dart';
 import 'package:event_planning_app/UI/HomeScreen/MapTab/MapTab.dart';
 import 'package:event_planning_app/UI/HomeScreen/ProfileTab/ProfileTab.dart';
@@ -25,7 +26,6 @@ class _HomeScreenState extends State<HomeScreen> {
     MapTab(),
     HeartTab(),
     ProfileTab(),
-
   ];
 
   @override
@@ -35,7 +35,8 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: Theme(
         data: Theme.of(context)
             .copyWith(canvasColor: Theme.of(context).primaryColor),
-        child: BottomAppBar(padding: EdgeInsets.zero,
+        child: BottomAppBar(
+          padding: EdgeInsets.zero,
           notchMargin: 4,
           shape: CircularNotchedRectangle(),
           color: AppColors.gray,
@@ -77,7 +78,9 @@ class _HomeScreenState extends State<HomeScreen> {
           shape:
               StadiumBorder(side: BorderSide(width: 5, color: AppColors.white)),
           elevation: 0,
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).pushNamed(CreateEvent.routeName);
+          },
           child: Icon(
             Icons.add,
             size: 30,

@@ -1,3 +1,4 @@
+import 'package:event_planning_app/UI/HomeScreen/CreateEvent/CreateEvent.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:event_planning_app/UI/Onboarding/IntroScreen.dart';
@@ -48,6 +49,7 @@ class MyApp extends StatelessWidget {
             Onboarding.routeName: (context) => const Onboarding(),
             HomeScreen.routeName: (context) => const HomeScreen(),
             IntroScreen.routeName: (context) => const IntroScreen(),
+            CreateEvent.routeName: (context) =>  CreateEvent(),
           },
         );
       }

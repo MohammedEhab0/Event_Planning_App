@@ -7,7 +7,7 @@ class CustomTextField extends StatelessWidget {
   Color? cursorColor;
   String? hintText;
   TextStyle? hintTextStyle;
-
+  int? maxLine;
   String? labelText;
   TextStyle? labelStyle;
   Color? prefixIconColor;
@@ -16,6 +16,7 @@ class CustomTextField extends StatelessWidget {
   Widget? suffixIcon;
 
   CustomTextField({
+    this.maxLine,
     this.colorBorder,
     this.hintText,
     this.cursorColor,
@@ -30,7 +31,7 @@ class CustomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
+    return TextFormField(maxLines: maxLine,
         cursorColor: cursorColor ?? AppColors.gray,
         decoration: InputDecoration(
             suffixIconColor: suffixIconColor,
