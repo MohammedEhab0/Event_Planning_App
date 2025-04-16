@@ -51,5 +51,7 @@
   "create account": "إنشاء حساب",
   "already have account": "لديك حساب بالفعل",
   "register": "تسجيل",
-  "reset password": "إعادة تعيين كلمة المرور"
+  "reset password": "إعادة تعيين كلمة المرور",
+  "or": "او",
+  "forgetPassword": "لا تذكر كلمة المرور"
 }

@@ -5,7 +5,7 @@ import 'package:event_planning_app/Utils/AppColors.dart';
 import 'package:event_planning_app/Utils/AppStyle.dart';
 import 'package:flutter/material.dart';
 import 'package:introduction_screen/introduction_screen.dart';
-
+import 'package:event_planning_app/UI/Login/Login.dart';
 class IntroScreen extends StatelessWidget {
   static const routeName = 'introScreen';
 
@@ -28,27 +28,38 @@ class IntroScreen extends StatelessWidget {
       ),
       pages: [
         PageViewModel(
-          decoration: PageDecoration(pageMargin: EdgeInsets.only(top:height*.15 ),
-              titleTextStyle: AppStyle.bold20PrimaryLight,bodyTextStyle: AppStyle.bold16Black,),
+          decoration: PageDecoration(
+            pageMargin: EdgeInsets.only(top: height * .15),
+            titleTextStyle: AppStyle.bold20PrimaryLight,
+            bodyTextStyle: AppStyle.bold16Black,
+          ),
           title: "Inspire".tr(),
           body: "Inspire_p".tr(),
           image: Image.asset(AppAssets.intro1),
         ),
-        PageViewModel( decoration: PageDecoration(pageMargin: EdgeInsets.only(top:height*.15 ),
-          titleTextStyle: AppStyle.bold20PrimaryLight,bodyTextStyle: AppStyle.bold16Black,),
+        PageViewModel(
+          decoration: PageDecoration(
+            pageMargin: EdgeInsets.only(top: height * .15),
+            titleTextStyle: AppStyle.bold20PrimaryLight,
+            bodyTextStyle: AppStyle.bold16Black,
+          ),
           title: "Effortless".tr(),
           body: "Effortless_p".tr(),
           image: Image.asset(AppAssets.intro2),
         ),
-        PageViewModel( decoration: PageDecoration(pageMargin: EdgeInsets.only(top:height*.15 ),
-          titleTextStyle: AppStyle.bold20PrimaryLight,bodyTextStyle: AppStyle.bold16Black,),
+        PageViewModel(
+          decoration: PageDecoration(
+            pageMargin: EdgeInsets.only(top: height * .15),
+            titleTextStyle: AppStyle.bold20PrimaryLight,
+            bodyTextStyle: AppStyle.bold16Black,
+          ),
           title: "Connect".tr(),
           body: "Connect_p".tr(),
           image: Image.asset(AppAssets.intro3),
         ),
       ],
       onDone: () {
-        Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
+        Navigator.of(context).pushReplacementNamed(Login.routeName);
       },
       showSkipButton: false,
       skipOrBackFlex: 0,

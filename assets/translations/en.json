@@ -49,9 +49,9 @@
   "name": "Name",
   "re password": "Re Password",
   "forget password": "Forget password",
-  "do not have account": "Do not have account",
+  "do not have account": "Do not have account ?",
   "create account": "Create account",
   "already have account": "Already have account",
   "register": "Register",
-  "reset password": "Reset Password"
+  "reset password": "Reset Password","or": "Or","forgetPassword": "Forget Password"
 }

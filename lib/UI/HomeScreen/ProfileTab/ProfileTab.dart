@@ -50,13 +50,17 @@ class _ProfileTabState extends State<ProfileTab> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: height * .005),
-                Text(
-                  'Route Route',
-                  style: AppStyle.bold28White,
+                Row(
+                  children: [
+                    Text(
+                      'Route ',
+                      style: AppStyle.bold28White,
+                    ),
+                  ],
                 ),
                 SizedBox(height: height * .01),
                 Text(
-                  'Welcome aaakkkk@kk✨',
+                  'Welcome ✨',
                   style: AppStyle.bold14White,
                 ),
               ],

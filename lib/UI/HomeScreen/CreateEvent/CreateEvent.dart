@@ -18,6 +18,7 @@ class CreateEvent extends StatefulWidget {
 }
 
 class _CreateEventState extends State<CreateEvent> {
+  int selectedIndex = 0;
   final List<TabBarData> EventList = [
     TabBarData(text: "Sport".tr(), iconTab: Icons.directions_bike_sharp),
     TabBarData(text: "Birthday".tr(), iconTab: Icons.cake),
@@ -42,14 +43,20 @@ class _CreateEventState extends State<CreateEvent> {
     AppAssets.eating,
   ];
 
-  int selectedIndex = 0;
+  DateTime? selectedDate;
+  String? selectedTime;
 
-  String selectedImage = '';
-
+  String? formatTime;
+  TextEditingController titleController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
+    String selectedImage = imageEventList[selectedIndex];
+    String selectedEventName = EventList[selectedIndex].text;
+
+    var formKey = GlobalKey<FormState>();
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -104,24 +111,45 @@ class _CreateEventState extends State<CreateEvent> {
                     itemCount: EventList.length),
               ),
               SizedBox(height: height * .02),
-              Text(
-                'title'.tr(),
-                style: AppStyle.light20PrimaryLight,
-              ),
-              SizedBox(height: height * .02),
-              CustomTextField(
-                hintText: "title".tr(),
-              ),
-              SizedBox(height: height * .03),
-              Text(
-                "description".tr(),
-                style: AppStyle.light20PrimaryLight,
-              ),
-              SizedBox(height: height * .02),
-              CustomTextField(
-                maxLine: 4,
-                hintText: "description".tr(),
-              ),
+              Form(
+                  key: formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'title'.tr(),
+                        style: AppStyle.light20PrimaryLight,
+                      ),
+                      SizedBox(height: height * .02),
+                      CustomTextField(textInputType: TextInputType.text,
+                        validator: (text) {
+                          if (text == null || text.isEmpty) {
+                            return "please enter title";
+                          }
+                          return null;
+                        },
+                        controller: titleController,
+                        hintText: "title".tr(),
+                      ),
+                      SizedBox(height: height * .03),
+                      Text(
+                        "description".tr(),
+                        style: AppStyle.light20PrimaryLight,
+                      ),
+                      SizedBox(height: height * .03),
+                      CustomTextField(textInputType: TextInputType.text,
+                        validator:(text){
+                          if(text ==null || text.isEmpty){
+                            return "please Enter Description";
+                          }
+                          return null ;
+                        },
+                        controller: descriptionController,
+                        maxLine: 4,
+                        hintText: "description".tr(),
+                      ) ],
+                  )),
+
               SizedBox(height: height * .02),
               Row(
                 children: [
@@ -136,15 +164,19 @@ class _CreateEventState extends State<CreateEvent> {
                   ),
                   Spacer(),
                   TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        chooseDate();
+                      },
                       child: Text(
-                        "choose Data".tr(),
+                        selectedDate == null
+                            ? "choose Data".tr()
+                            : "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}",
                         style: AppStyle.bold16PrimaryLight.copyWith(
                             decoration: TextDecoration.underline,
                             decorationColor: AppColors.primarylight),
                       ))
                 ],
-              ),
+              ),  selectedDate == null? Text ("please choose date",style: AppStyle.bold12gray.copyWith(color: Colors.red),):Text (""),
               Row(
                 children: [
                   Icon(
@@ -158,16 +190,18 @@ class _CreateEventState extends State<CreateEvent> {
                   ),
                   Spacer(),
                   TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        chooseTime();
+                      },
                       child: Text(
-                        "choose Time".tr(),
+                        formatTime == null ? "choose Time".tr() : formatTime!,
                         style: AppStyle.bold16PrimaryLight.copyWith(
                             decoration: TextDecoration.underline,
                             decorationColor: AppColors.primarylight),
                       ))
                 ],
-              ),
-              SizedBox(height: height * .02),
+              ), formatTime == null ? Text ("please choose date",style: AppStyle.bold12gray.copyWith(color: Colors.red),):Text ("")
+              ,SizedBox(height: height * .02),
               Text(
                 'location'.tr(),
                 style: AppStyle.light20PrimaryLight,
@@ -205,7 +239,10 @@ class _CreateEventState extends State<CreateEvent> {
               ),
               SizedBox(height: height * .03),
               CustomElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  if (formKey.currentState?.validate() == true) {}
+
+                },
                 textButton: "add Event".tr(),
               )
             ],
@@ -214,4 +251,23 @@ class _CreateEventState extends State<CreateEvent> {
       ),
     );
   }
+
+  chooseDate() async {
+    var chooseDate = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime.now(),
+        lastDate: DateTime.now().add(Duration(days: 365)));
+    selectedDate = chooseDate;
+    setState(() {});
+  }
+
+  chooseTime() async {
+    var chooseTime =
+        await showTimePicker(context: context, initialTime: TimeOfDay.now());
+    selectedTime = chooseTime!.format(context);
+    formatTime = selectedTime;
+    setState(() {});
+  }
+
 }

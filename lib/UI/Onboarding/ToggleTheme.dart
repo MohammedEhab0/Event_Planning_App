@@ -11,7 +11,7 @@ class ToggleTheme extends StatelessWidget {
   Widget build(BuildContext context) {
     var settingProviders = Provider.of<SettingProviders>(context);
     return LiteRollingSwitch(
-      width: 100,
+      width: 110,
       textSize: 16,
       textOnColor: AppColors.white,
       textOffColor: AppColors.white,

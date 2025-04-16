@@ -1,5 +1,7 @@
 import 'package:event_planning_app/UI/HomeScreen/CreateEvent/CreateEvent.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeScreen.dart';
+import 'package:event_planning_app/UI/Login/ForgetPassword.dart';
+import 'package:event_planning_app/UI/Register/Register.dart';
 import 'package:flutter/material.dart';
 import 'package:event_planning_app/UI/Onboarding/IntroScreen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -8,7 +10,7 @@ import 'package:provider/provider.dart';
 import 'UI/Onboarding/Onboarding.dart';
 import 'Utils/AppTheme.dart';
 import 'Providers/SettingProviders.dart';
-
+import 'package:event_planning_app/UI/Login/Login.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
@@ -50,6 +52,9 @@ class MyApp extends StatelessWidget {
             HomeScreen.routeName: (context) => const HomeScreen(),
             IntroScreen.routeName: (context) => const IntroScreen(),
             CreateEvent.routeName: (context) =>  CreateEvent(),
+            Login.routeName: (context) =>  Login(),
+            Register.routeName: (context) =>  Register(),
+            ForgetPassword.routeName: (context) =>  ForgetPassword(),
           },
         );
       }
