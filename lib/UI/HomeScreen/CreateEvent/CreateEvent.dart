@@ -1,3 +1,5 @@
+
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeTab/EventBarItem.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeTab/EventItem.dart';
@@ -8,16 +10,21 @@ import 'package:event_planning_app/UI/Widgets/CustomTextField.dart';
 import 'package:event_planning_app/Utils/AppAssets.dart';
 import 'package:event_planning_app/Utils/AppColors.dart';
 import 'package:event_planning_app/Utils/AppStyle.dart';
+import 'package:event_planning_app/Utils/FireBaseUtils.dart';
 import 'package:flutter/material.dart';
+import 'package:event_planning_app/Modal/Event.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class CreateEvent extends StatefulWidget {
   static const routeName = 'CreateEvent';
+
 
   @override
   State<CreateEvent> createState() => _CreateEventState();
 }
 
 class _CreateEventState extends State<CreateEvent> {
+  var formKey = GlobalKey<FormState>();
   int selectedIndex = 0;
   final List<TabBarData> EventList = [
     TabBarData(text: "Sport".tr(), iconTab: Icons.directions_bike_sharp),
@@ -49,14 +56,17 @@ class _CreateEventState extends State<CreateEvent> {
   String? formatTime;
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
+  String selectedImage = '';
+  String selectedEventName = '';
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
-    String selectedImage = imageEventList[selectedIndex];
-    String selectedEventName = EventList[selectedIndex].text;
+    selectedImage = imageEventList[selectedIndex];
+    selectedEventName = EventList[selectedIndex].text;
 
-    var formKey = GlobalKey<FormState>();
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -81,7 +91,7 @@ class _CreateEventState extends State<CreateEvent> {
                     borderRadius: BorderRadius.circular(16),
                     image: DecorationImage(
                         fit: BoxFit.fill,
-                        image: AssetImage(imageEventList[0]))),
+                        image: AssetImage(imageEventList[selectedIndex]))),
               ),
               SizedBox(height: height * .02),
               Container(
@@ -121,7 +131,8 @@ class _CreateEventState extends State<CreateEvent> {
                         style: AppStyle.light20PrimaryLight,
                       ),
                       SizedBox(height: height * .02),
-                      CustomTextField(textInputType: TextInputType.text,
+                      CustomTextField(
+                        textInputType: TextInputType.text,
                         validator: (text) {
                           if (text == null || text.isEmpty) {
                             return "please enter title";
@@ -137,19 +148,20 @@ class _CreateEventState extends State<CreateEvent> {
                         style: AppStyle.light20PrimaryLight,
                       ),
                       SizedBox(height: height * .03),
-                      CustomTextField(textInputType: TextInputType.text,
-                        validator:(text){
-                          if(text ==null || text.isEmpty){
+                      CustomTextField(
+                        textInputType: TextInputType.text,
+                        validator: (text) {
+                          if (text == null || text.isEmpty) {
                             return "please Enter Description";
                           }
-                          return null ;
+                          return null;
                         },
                         controller: descriptionController,
                         maxLine: 4,
                         hintText: "description".tr(),
-                      ) ],
+                      )
+                    ],
                   )),
-
               SizedBox(height: height * .02),
               Row(
                 children: [
@@ -176,7 +188,7 @@ class _CreateEventState extends State<CreateEvent> {
                             decorationColor: AppColors.primarylight),
                       ))
                 ],
-              ),  selectedDate == null? Text ("please choose date",style: AppStyle.bold12gray.copyWith(color: Colors.red),):Text (""),
+              ),
               Row(
                 children: [
                   Icon(
@@ -200,8 +212,8 @@ class _CreateEventState extends State<CreateEvent> {
                             decorationColor: AppColors.primarylight),
                       ))
                 ],
-              ), formatTime == null ? Text ("please choose date",style: AppStyle.bold12gray.copyWith(color: Colors.red),):Text ("")
-              ,SizedBox(height: height * .02),
+              ),
+              SizedBox(height: height * .02),
               Text(
                 'location'.tr(),
                 style: AppStyle.light20PrimaryLight,
@@ -240,8 +252,50 @@ class _CreateEventState extends State<CreateEvent> {
               SizedBox(height: height * .03),
               CustomElevatedButton(
                 onPressed: () {
-                  if (formKey.currentState?.validate() == true) {}
+                  // Validate the form
+                  if (formKey.currentState?.validate() == true) {
+                    // Check if a date has been selected
+                    if (selectedDate == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Please choose a date")),
+                      );
+                      return;
+                    }
 
+                    // Check if a time has been selected
+                    if (formatTime == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Please choose a time")),
+                      );
+                      return;
+                    }
+
+                    // Create the event object
+                    Event event = Event(
+                      eventName: selectedEventName,
+                      title: titleController.text,
+                      description: descriptionController.text,
+                      image: selectedImage,
+                      date: selectedDate!,
+                      time: formatTime!,
+                    );
+
+                    // Add the event to Firestore
+                    FireBaseUtils.addEventToFireStore(event).timeout(
+                      Duration(milliseconds: 500),onTimeout: (){
+                        print('event add successfully ');
+                        Fluttertoast.showToast(
+                            msg: "event add successfully",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.CENTER,
+                            timeInSecForIosWeb:60,
+                            backgroundColor: AppColors.primarylight,
+                            textColor: AppColors.backgroundlight,
+                            fontSize: 16.0
+                        );
+                    }
+                      );
+                  }
                 },
                 textButton: "add Event".tr(),
               )
@@ -263,11 +317,18 @@ class _CreateEventState extends State<CreateEvent> {
   }
 
   chooseTime() async {
-    var chooseTime =
-        await showTimePicker(context: context, initialTime: TimeOfDay.now());
-    selectedTime = chooseTime!.format(context);
-    formatTime = selectedTime;
-    setState(() {});
-  }
 
+    var chooseTime = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+
+    if (chooseTime != null) {
+
+      selectedTime = chooseTime.format(context);
+
+      formatTime = selectedTime;
+
+      setState(() {});
+
+    }
+
+  }
 }

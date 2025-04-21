@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:event_planning_app/UI/HomeScreen/CreateEvent/CreateEvent.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeScreen.dart';
 import 'package:event_planning_app/UI/Login/ForgetPassword.dart';
 import 'package:event_planning_app/UI/Register/Register.dart';
+import 'package:event_planning_app/firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:event_planning_app/UI/Onboarding/IntroScreen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -11,9 +13,23 @@ import 'UI/Onboarding/Onboarding.dart';
 import 'Utils/AppTheme.dart';
 import 'Providers/SettingProviders.dart';
 import 'package:event_planning_app/UI/Login/Login.dart';
+import 'package:firebase_core/firebase_core.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
+
+  // Initialize Firebase
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    // Optionally disable network if needed
+    await FirebaseFirestore.instance.disableNetwork();
+  } catch (e) {
+    print("Error initializing Firebase: $e");
+    // Handle the error appropriately (e.g., show an error message)
+  }
 
   runApp(
     EasyLocalization(
@@ -37,27 +53,25 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var settingProviders = Provider.of<SettingProviders>(context);
-        return MaterialApp(
-          localizationsDelegates: context.localizationDelegates,
-          supportedLocales: context.supportedLocales,
-          locale: context.locale,
-          themeMode: settingProviders.themeMode,
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
-          debugShowCheckedModeBanner: false,
-          title: 'EventPlanningApp',
-          initialRoute: Onboarding.routeName,
-          routes: {
-            Onboarding.routeName: (context) => const Onboarding(),
-            HomeScreen.routeName: (context) => const HomeScreen(),
-            IntroScreen.routeName: (context) => const IntroScreen(),
-            CreateEvent.routeName: (context) =>  CreateEvent(),
-            Login.routeName: (context) =>  Login(),
-            Register.routeName: (context) =>  Register(),
-            ForgetPassword.routeName: (context) =>  ForgetPassword(),
-          },
-        );
-      }
-
-
+    return MaterialApp(
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
+      themeMode: settingProviders.themeMode,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      debugShowCheckedModeBanner: false,
+      title: 'EventPlanningApp',
+      initialRoute: Onboarding.routeName,
+      routes: {
+        Onboarding.routeName: (context) => const Onboarding(),
+        HomeScreen.routeName: (context) => const HomeScreen(),
+        IntroScreen.routeName: (context) => const IntroScreen(),
+        CreateEvent.routeName: (context) => CreateEvent(),
+        Login.routeName: (context) => Login(),
+        Register.routeName: (context) => Register(),
+        ForgetPassword.routeName: (context) => ForgetPassword(),
+      },
+    );
+  }
 }
