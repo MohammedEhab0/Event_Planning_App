@@ -1,4 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:event_planning_app/Modal/Event.dart';
+import 'package:event_planning_app/Providers/EventListProvider.dart';
+import 'package:event_planning_app/UI/HomeScreen/EventDetails/EventDetails.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeTab/EventItem.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeTab/EventBarItem.dart';
 import 'package:event_planning_app/Utils/AppAssets.dart';
@@ -6,6 +9,7 @@ import 'package:event_planning_app/Utils/AppColors.dart';
 import 'package:event_planning_app/Utils/AppStyle.dart';
 import 'package:flutter/material.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeTab/TabBarData.dart';
+import 'package:provider/provider.dart';
 
 class HomeTab extends StatefulWidget {
   @override
@@ -13,29 +17,19 @@ class HomeTab extends StatefulWidget {
 }
 
 class _HomeTabState extends State<HomeTab> {
-  int selectedIndex = 0;
-  final List<TabBarData> tabBarList = [
-    TabBarData(text: "All".tr(), iconTab: Icons.adjust_sharp),
-    TabBarData(text: "Sport".tr(), iconTab: Icons.directions_bike_sharp),
-    TabBarData(text: "Birthday".tr(), iconTab: Icons.cake),
-    TabBarData(text: "Meeting".tr(), iconTab: Icons.business_center),
-    TabBarData(text: "Gaming".tr(), iconTab: Icons.videogame_asset),
-    TabBarData(text: "Workshop".tr(), iconTab: Icons.work),
-    TabBarData(text: "Book Club".tr(), iconTab: Icons.book),
-    TabBarData(text: "Exhibition".tr(), iconTab: Icons.photo),
-    TabBarData(text: "Holiday".tr(), iconTab: Icons.beach_access),
-    TabBarData(text: "Eating".tr(), iconTab: Icons.restaurant),
-  ];
-
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
+    var eventListProvider = Provider.of<EventListProvider>(context);
+    if (eventListProvider.eventList.isEmpty) {
+      eventListProvider.getAllEvents();
+    }
 
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        backgroundColor:Theme.of(context).primaryColor,
+        backgroundColor: Theme.of(context).primaryColor,
         title: Row(
           children: [
             Column(
@@ -102,44 +96,59 @@ class _HomeTabState extends State<HomeTab> {
                 ),
                 SizedBox(height: height * .01),
                 DefaultTabController(
-                  length: tabBarList.length,
+                  length: eventListProvider.tabBarList.length,
                   child: TabBar(
                     onTap: (index) {
-                      setState(() {
-                        selectedIndex = index;
-                      });
+                      eventListProvider.changeSelectedIndex(index);
                     },
                     labelPadding: EdgeInsets.all(height * .01),
                     dividerColor: Colors.transparent,
                     indicatorColor: Colors.transparent,
                     tabAlignment: TabAlignment.start,
                     isScrollable: true,
-                    tabs: tabBarList
-                        .map((e) => EventBarItem(textSelectedStyle:AppStyle.bold16PrimaryLight, textUnSelectedStyle:AppStyle.bold16White
-                      ,unSelectedColor:AppColors.primarylight,
-                       selectedColor:AppColors.white,
+                    tabs: eventListProvider.tabBarList
+                        .map((e) => EventBarItem(
+                              textSelectedStyle: AppStyle.bold16PrimaryLight,
+                              textUnSelectedStyle: AppStyle.bold16White,
+                              unSelectedColor: AppColors.primarylight,
+                              selectedColor: AppColors.white,
                               text: e.text,
-                              tabIcon: e.iconTab,
-                              isSelected: selectedIndex == tabBarList.indexOf(e)
+                              tabIcon: e.iconTab!,
+                              isSelected: eventListProvider.selectedIndex ==
+                                      eventListProvider.tabBarList.indexOf(e)
                                   ? true
                                   : false,
                             ))
                         .toList(),
                   ),
                 ),
-
               ],
-
             ),
-          ), Expanded(
-              child: ListView.separated(padding: EdgeInsets.symmetric(vertical:  height * .02),
-                  itemBuilder: (context, index) {
-                    return EventItem();
-                  },
-                  separatorBuilder: (context, index) {
-                    return SizedBox(height: height * .03);
-                  },
-                  itemCount: 10))
+          ),
+          Expanded(
+              child: eventListProvider.filterList.isEmpty
+                  ? Container(
+                      alignment: Alignment.center,
+                      child: Text(
+                        'no Events here ',
+                        style: AppStyle.bold20Black,
+                      ),
+                    )
+                  : ListView.separated(
+                      padding: EdgeInsets.symmetric(vertical: height * .02),
+                      itemBuilder: (context, index) {
+                        return InkWell(onTap: (){
+                          Navigator.of(context).pushNamed(EventDetails.routeName,
+                              arguments: eventListProvider.filterList[index]);
+                        },
+                            child: EventItem(
+                          event: eventListProvider.filterList[index],
+                        ));
+                      },
+                      separatorBuilder: (context, index) {
+                        return SizedBox(height: height * .03);
+                      },
+                      itemCount: eventListProvider.filterList.length))
         ],
       ),
     );

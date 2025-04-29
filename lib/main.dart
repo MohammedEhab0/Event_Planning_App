@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:event_planning_app/Providers/EventListProvider.dart';
 import 'package:event_planning_app/UI/HomeScreen/CreateEvent/CreateEvent.dart';
+import 'package:event_planning_app/UI/HomeScreen/EventDetails/EditEvent.dart';
+import 'package:event_planning_app/UI/HomeScreen/EventDetails/EventDetails.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeScreen.dart';
 import 'package:event_planning_app/UI/Login/ForgetPassword.dart';
 import 'package:event_planning_app/UI/Register/Register.dart';
@@ -35,11 +38,12 @@ void main() async {
     EasyLocalization(
       supportedLocales: [Locale('en'), Locale('ar')],
       path: 'assets/translations',
-      fallbackLocale: Locale('ar'),
-      startLocale: Locale('ar'),
+      fallbackLocale: Locale('en'),
+      startLocale: Locale('en'),
       child: MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (context) => SettingProviders()),
+          ChangeNotifierProvider(create: (context) => EventListProvider())
         ],
         child: const MyApp(),
       ),
@@ -71,6 +75,8 @@ class MyApp extends StatelessWidget {
         Login.routeName: (context) => Login(),
         Register.routeName: (context) => Register(),
         ForgetPassword.routeName: (context) => ForgetPassword(),
+        EventDetails.routeName:(context) => EventDetails(),
+        EditEvent.routeName:(context) => EditEvent(),
       },
     );
   }

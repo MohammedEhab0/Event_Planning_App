@@ -1,11 +1,9 @@
-
-
 import 'package:easy_localization/easy_localization.dart';
+import 'package:event_planning_app/Modal/Event.dart';
 import 'package:event_planning_app/Providers/EventListProvider.dart';
+import 'package:event_planning_app/UI/HomeScreen/HomeScreen.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeTab/EventBarItem.dart';
-import 'package:event_planning_app/UI/HomeScreen/HomeTab/EventItem.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeTab/TabBarData.dart';
-import 'package:event_planning_app/UI/HomeScreen/HomeTab/TabBarItem.dart';
 import 'package:event_planning_app/UI/Widgets/CustomElevatedButton.dart';
 import 'package:event_planning_app/UI/Widgets/CustomTextField.dart';
 import 'package:event_planning_app/Utils/AppAssets.dart';
@@ -13,22 +11,19 @@ import 'package:event_planning_app/Utils/AppColors.dart';
 import 'package:event_planning_app/Utils/AppStyle.dart';
 import 'package:event_planning_app/Utils/FireBaseUtils.dart';
 import 'package:flutter/material.dart';
-import 'package:event_planning_app/Modal/Event.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
-class CreateEvent extends StatefulWidget {
-  static const routeName = 'CreateEvent';
-
+class EditEvent extends StatefulWidget {
+  static const routeName = 'EditEvent';
 
   @override
-  State<CreateEvent> createState() => _CreateEventState();
+  State<EditEvent> createState() => _EditEventState();
 }
 
-class _CreateEventState extends State<CreateEvent> {
-
+class _EditEventState extends State<EditEvent> {
   var formKey = GlobalKey<FormState>();
-  int selectedIndex = 0;
+
   final List<TabBarData> EventList = [
     TabBarData(text: "Sport".tr(), iconTab: Icons.directions_bike_sharp),
     TabBarData(text: "Birthday".tr(), iconTab: Icons.cake),
@@ -61,23 +56,36 @@ class _CreateEventState extends State<CreateEvent> {
   TextEditingController descriptionController = TextEditingController();
   String selectedImage = '';
   String selectedEventName = '';
+  late Event eventArgs;
 
   @override
   Widget build(BuildContext context) {
+    eventArgs = ModalRoute.of(context)?.settings.arguments as Event;
+    var eventListProvider = Provider.of<EventListProvider>(context);
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
-    selectedImage = imageEventList[selectedIndex];
-    selectedEventName = EventList[selectedIndex].text;
+    int selectedIndex = 0;
+    selectedEventName = eventArgs.eventName;
+    selectedImage = eventArgs.image;
+    selectedTime = eventArgs.time;
+    selectedDate = eventArgs.date;
 
-    var eventListProvider= Provider.of<EventListProvider>(context);
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          IconButton(
+              onPressed: () {},
+              icon: Icon(
+                Icons.delete,
+                color: Colors.red,
+              ))
+        ],
         elevation: 0,
         backgroundColor: AppColors.backgroundlight,
         centerTitle: true,
         iconTheme: IconThemeData(color: AppColors.primarylight),
         title: Text(
-          'CreateEvent'.tr(),
+          'EditEvent'.tr(),
           style: AppStyle.light20PrimaryLight,
         ),
       ),
@@ -94,7 +102,9 @@ class _CreateEventState extends State<CreateEvent> {
                     borderRadius: BorderRadius.circular(16),
                     image: DecorationImage(
                         fit: BoxFit.fill,
-                        image: AssetImage(imageEventList[selectedIndex]))),
+                        image: AssetImage(eventArgs.image.isNotEmpty
+                            ? eventArgs.image
+                            : imageEventList[selectedIndex]))),
               ),
               SizedBox(height: height * .02),
               Container(
@@ -143,7 +153,7 @@ class _CreateEventState extends State<CreateEvent> {
                           return null;
                         },
                         controller: titleController,
-                        hintText: "title".tr(),
+                        hintText: eventArgs.title,
                       ),
                       SizedBox(height: height * .03),
                       Text(
@@ -161,7 +171,7 @@ class _CreateEventState extends State<CreateEvent> {
                         },
                         controller: descriptionController,
                         maxLine: 4,
-                        hintText: "description".tr(),
+                        hintText: eventArgs.description,
                       )
                     ],
                   )),
@@ -184,7 +194,7 @@ class _CreateEventState extends State<CreateEvent> {
                       },
                       child: Text(
                         selectedDate == null
-                            ? "choose Data".tr()
+                            ? DateFormat('ddd/mmm/yyy').format(eventArgs.date)
                             : "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}",
                         style: AppStyle.bold16PrimaryLight.copyWith(
                             decoration: TextDecoration.underline,
@@ -209,7 +219,7 @@ class _CreateEventState extends State<CreateEvent> {
                         chooseTime();
                       },
                       child: Text(
-                        formatTime == null ? "choose Time".tr() : formatTime!,
+                        formatTime == null ? eventArgs.time : formatTime!,
                         style: AppStyle.bold16PrimaryLight.copyWith(
                             decoration: TextDecoration.underline,
                             decorationColor: AppColors.primarylight),
@@ -222,7 +232,8 @@ class _CreateEventState extends State<CreateEvent> {
                 style: AppStyle.light20PrimaryLight,
               ),
               SizedBox(height: height * .02),
-              Container(padding:EdgeInsets.all(width *.01) ,
+              Container(
+                padding: EdgeInsets.all(width * .01),
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                     border:
@@ -231,8 +242,10 @@ class _CreateEventState extends State<CreateEvent> {
                   children: [
                     Container(
                       decoration: BoxDecoration(
-                        color: AppColors.primarylight, // Set the background color here
-                        borderRadius: BorderRadius.circular(16), // Optional: Add border radius for rounded corners
+                        color: AppColors.primarylight,
+                        // Set the background color here
+                        borderRadius: BorderRadius.circular(
+                            16), // Optional: Add border radius for rounded corners
                       ),
                       child: IconButton(
                         padding: EdgeInsets.all(width * .02),
@@ -261,53 +274,22 @@ class _CreateEventState extends State<CreateEvent> {
                 onPressed: () {
                   // Validate the form
                   if (formKey.currentState?.validate() == true) {
-                    // Check if a date has been selected
-                    if (selectedDate == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Please choose a date")),
-                      );
-                      return;
-                    }
-
-                    // Check if a time has been selected
-                    if (formatTime == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Please choose a time")),
-                      );
-                      return;
-                    }
-
-                    // Create the event object
                     Event event = Event(
+                      id: eventArgs.id,
                       eventName: selectedEventName,
-                      title: titleController.text,
-                      description: descriptionController.text,
+                      title: titleController.text.isNotEmpty?titleController.text:eventArgs.title,
+                      description: descriptionController.text.isNotEmpty?descriptionController.text:eventArgs.description,
                       image: selectedImage,
                       date: selectedDate!,
-                      time: formatTime!,
+                      time: selectedTime!,
                     );
 
-                    // Add the event to Firestore
-                    FireBaseUtils.addEventToFireStore(event).timeout(
-                      Duration(milliseconds: 500),onTimeout: (){
-                        print('event add successfully ');
-                        Fluttertoast.showToast(
-                            msg: "event add successfully",
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.CENTER,
-                            timeInSecForIosWeb:60,
-                            backgroundColor: AppColors.primarylight,
-                            textColor: AppColors.backgroundlight,
-                            fontSize: 16.0
-                        );
-                        eventListProvider.getAllEvents();
-                        Navigator.pop(context);
-                    }
-                      );
-
+                    // Update the event to Firestore
+                    eventListProvider.updateEvent(event);
+                    Navigator.pop(context);
                   }
                 },
-                textButton: "add Event".tr(),
+                textButton: "Edit Event".tr(),
               )
             ],
           ),
@@ -322,23 +304,25 @@ class _CreateEventState extends State<CreateEvent> {
         initialDate: DateTime.now(),
         firstDate: DateTime.now(),
         lastDate: DateTime.now().add(Duration(days: 365)));
-    selectedDate = chooseDate;
+    if (chooseDate != null) {
+      selectedDate = chooseDate;
+
+      setState(() {});
+    } else {
+      selectedDate = eventArgs.date;
+    }
     setState(() {});
   }
 
   chooseTime() async {
-
-    var chooseTime = await showTimePicker(context: context, initialTime: TimeOfDay.now());
-
+    var chooseTime =
+        await showTimePicker(context: context, initialTime: TimeOfDay.now());
     if (chooseTime != null) {
-
       selectedTime = chooseTime.format(context);
-
       formatTime = selectedTime;
-
       setState(() {});
-
+    } else {
+      selectedTime = eventArgs.time;
     }
-
   }
 }

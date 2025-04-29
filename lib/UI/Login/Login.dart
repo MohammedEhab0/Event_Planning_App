@@ -77,7 +77,7 @@ class Login extends StatelessWidget {
                 CustomElevatedButton(
                     onPressed: () {
                       Navigator.of(context)
-                          .pushNamed(HomeScreen.routeName);
+                          .pushReplacementNamed(HomeScreen.routeName);
                     }, textButton: "login".tr()),
                 SizedBox(
                   height: height * .02,

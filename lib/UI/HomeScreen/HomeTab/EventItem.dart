@@ -1,15 +1,22 @@
+import 'package:easy_localization/easy_localization.dart';
+import 'package:event_planning_app/Modal/Event.dart';
+import 'package:event_planning_app/Providers/EventListProvider.dart';
 import 'package:event_planning_app/Utils/AppAssets.dart';
 import 'package:event_planning_app/Utils/AppColors.dart';
 import 'package:event_planning_app/Utils/AppStyle.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class EventItem extends StatelessWidget {
-  const EventItem({super.key});
+  Event event;
+
+  EventItem({required this.event});
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
+    var eventListProvider = Provider.of<EventListProvider>(context);
     return Container(
       width: double.infinity,
       height: height * .26,
@@ -23,17 +30,16 @@ class EventItem extends StatelessWidget {
                 horizontal: width * .03, vertical: height * .008),
             margin: EdgeInsets.all(width * .025),
             decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(8)),
+                color: AppColors.white, borderRadius: BorderRadius.circular(8)),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '21',
+                  event.date.day.toString(),
                   style: AppStyle.bold20PrimaryLight,
                 ),
                 Text(
-                  'nov',
+                  DateFormat('MMM').format(event.date),
                   style: AppStyle.bold14PrimaryLight,
                 )
               ],
@@ -50,23 +56,32 @@ class EventItem extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'llllllllllllllllllll',
+                    event.title,
                     style: AppStyle.bold14PrimaryLight,
                   ),
                 ),
-                Image.asset(
-                  AppAssets.heart,
-                  color: AppColors.primarylight,
+                IconButton(
+                  onPressed: () {
+                    eventListProvider.updateIsFavoriteEvent(event);
+                    eventListProvider.getFavoriteEvents();
+                  },
+                  icon: Image.asset(
+                    event.isFavorite == true
+                        ? AppAssets.heart1
+                        : AppAssets.heart,
+                    color: AppColors.primarylight,
+                  ),
                 )
               ],
             ),
           )
         ],
       ),
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
           image: DecorationImage(
               image: AssetImage(
-                AppAssets.eating,
+                event.image,
               ),
               fit: BoxFit.fill)),
     );

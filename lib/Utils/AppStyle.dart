@@ -33,6 +33,8 @@ class AppStyle {
       fontSize: 20,
       fontWeight: FontWeight.normal,
       color: AppColors.primarylight);
+  static TextStyle bold24primarylight = TextStyle(
+      fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.primarylight);
 
   static TextStyle bold12gray = TextStyle(
       fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.gray);
