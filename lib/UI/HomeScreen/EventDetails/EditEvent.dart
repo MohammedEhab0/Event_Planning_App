@@ -286,7 +286,7 @@ class _EditEventState extends State<EditEvent> {
 
                     // Update the event to Firestore
                     eventListProvider.updateEvent(event);
-                    Navigator.pop(context);
+                    Navigator.restorablePopAndPushNamed(context, HomeScreen.routeName);
                   }
                 },
                 textButton: "Edit Event".tr(),

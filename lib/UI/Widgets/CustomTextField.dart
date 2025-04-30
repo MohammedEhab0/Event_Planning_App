@@ -3,6 +3,7 @@ import 'package:event_planning_app/Utils/AppStyle.dart';
 import 'package:flutter/material.dart';
 
 class CustomTextField extends StatelessWidget {
+  bool?obscureText;
   Color? colorBorder;
   Color? cursorColor;
   String? hintText;
@@ -29,14 +30,16 @@ class CustomTextField extends StatelessWidget {
     this.suffixIcon,
     this.suffixIconColor,
     this.labelText,
-    this.labelStyle,this.controller,this.validator
+    this.labelStyle,this.controller,this.validator,this.obscureText
   });
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(validator:validator , controller: controller, style: AppStyle.bold16gray,
+    return TextFormField(
+        obscuringCharacter:'*',obscureText:obscureText ?? false ,
+        validator:validator , controller: controller, style: AppStyle.bold16gray,
         keyboardType: textInputType ?? TextInputType.text,
-        maxLines: maxLine,
+        maxLines: maxLine??1,
         cursorColor: cursorColor ?? AppColors.gray,
         decoration: InputDecoration(
             suffixIconColor: suffixIconColor,
