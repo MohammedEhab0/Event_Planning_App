@@ -1,4 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:event_planning_app/Modal/MyUser.dart';
+import 'package:event_planning_app/Providers/EventListProvider.dart';
+import 'package:event_planning_app/Providers/UserProvider.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeScreen.dart';
 import 'package:event_planning_app/UI/Login/ForgetPassword.dart';
 import 'package:event_planning_app/UI/Onboarding/ToggleLanguage.dart';
@@ -9,9 +12,11 @@ import 'package:event_planning_app/Utils/AppAssets.dart';
 import 'package:event_planning_app/Utils/AppColors.dart';
 import 'package:event_planning_app/Utils/AppStyle.dart';
 import 'package:event_planning_app/Utils/DialogUtils.dart';
+import 'package:event_planning_app/Utils/FireBaseUtils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:provider/provider.dart';
 
 class Login extends StatefulWidget {
   static const routeName = 'Login';
@@ -194,18 +199,37 @@ class _LoginState extends State<Login> {
         final credential = await FirebaseAuth.instance
             .signInWithEmailAndPassword(
                 email: emailController.text, password: passwordController.text);
+        MyUser? user= await FireBaseUtils.readUserFromFireStore(credential.user?.uid??'');
+        if(user == null){
+          return;
+        }
+        var userProvider=Provider.of<UserProvider>(context,listen: false);
+        userProvider.updateUser(user);
+        var eventListProvider=Provider.of<EventListProvider>(context,listen: false);
+        eventListProvider.changeSelectedIndex(0, userProvider.currentUser!.id);
+        eventListProvider.getFavoriteEvents( userProvider.currentUser!.id);
         DialogUtils.hideLoading(context: context);
         DialogUtils.showMessage(
             context: context,
             message: 'Login successfully',
             positiveAction: true,
             onPositiveAction: () {
-              Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
-            });
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                HomeScreen.routeName,
+                    (Route<dynamic> route) => false,
+              );});
         print('Login successfully ');
         print(credential.user?.uid ?? "");
       } on FirebaseAuthException catch (e) {
         if (e.code == 'user-not-found') {
+          DialogUtils.hideLoading(context: context);
+          DialogUtils.showMessage(
+              context: context,
+              message: 'Login faild ',
+              negativeAction: true,
+              onNegativeAction: () {
+                Navigator.of(context).pop();
+              });
           print('No user found for that email.');
         } else if (e.code == 'invalid-credential') {
           DialogUtils.hideLoading(context: context);

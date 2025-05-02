@@ -26,35 +26,51 @@ class EventListProvider extends ChangeNotifier {
     TabBarData(text: "Eating".tr(), iconTab: Icons.restaurant),
   ];
 
-  void getAllEvents() async {
+  void getAllEvents(String uId) async {
     QuerySnapshot<Event> querySnapshot =
-        await FireBaseUtils.getEventColleection().orderBy('date').get();
+        await FireBaseUtils.getEventColleection(uId).orderBy('date').get();
     eventList = querySnapshot.docs.map((doc) => doc.data()).toList();
     filterList=eventList;
     notifyListeners();
 
 
   }
-  void getFavoriteEvents() async{
+  void getFavoriteEvents(String uId ) async{
     QuerySnapshot<Event> querySnapshot =
-    await FireBaseUtils.getEventColleection().where('isFavorite', isEqualTo: true).orderBy('date').get();
+    await FireBaseUtils.getEventColleection(uId).where('isFavorite', isEqualTo: true).orderBy('date').get();
     favoriteList=querySnapshot.docs.map((doc) => doc.data()).toList();
     notifyListeners();
   }
-  void getFilterEvents() async{
-    QuerySnapshot<Event> querySnapshot =
-        await FireBaseUtils.getEventColleection().where('eventName', isEqualTo: tabBarList[selectedIndex].text).orderBy('date').get();
-    filterList=querySnapshot.docs.map((doc) => doc.data()).toList();
-    notifyListeners();
+  void getFilterEvents(String uId) async {
+    try {
+      QuerySnapshot<Event> querySnapshot =
+      await FireBaseUtils.getEventColleection(uId)
+          .where('eventName', isEqualTo: tabBarList[selectedIndex].text)
+          .orderBy('date')
+          .get();
+      filterList = querySnapshot.docs.map((doc) => doc.data()).toList();
+    } catch (e) {
+      print("Error fetching filtered events: $e");
+      Fluttertoast.showToast(
+        msg: "Error fetching events: $e",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: AppColors.primarylight,
+        textColor: AppColors.backgroundlight,
+        fontSize: 16.0,
+      );
+    } finally {
+      notifyListeners();
+    }
   }
-  void changeSelectedIndex(int newSelectedIndex){
+  void changeSelectedIndex(int newSelectedIndex, String uId){
     selectedIndex=newSelectedIndex;
-    selectedIndex ==0 ? getAllEvents():getFilterEvents();
+    selectedIndex ==0 ? getAllEvents(uId):getFilterEvents(uId);
     notifyListeners();
   }
-  void updateIsFavoriteEvent(Event event)async{
+  void updateIsFavoriteEvent(Event event,String uId)async{
 
-    FireBaseUtils.getEventColleection().doc(event.id).update(
+    FireBaseUtils.getEventColleection(uId).doc(event.id).update(
         {'isFavorite': !event.isFavorite}).timeout(Duration(milliseconds: 50),onTimeout: (){
           print('update successfully ');
           Fluttertoast.showToast(
@@ -66,18 +82,18 @@ class EventListProvider extends ChangeNotifier {
               textColor: AppColors.backgroundlight,
               fontSize: 16.0
           );
-          selectedIndex ==0 ? getAllEvents():getFilterEvents();
+          selectedIndex ==0 ? getAllEvents(uId):getFilterEvents(uId);
     });
     notifyListeners();
   }
-  void updateEvent(Event event) async {
-      FireBaseUtils.getEventColleection().doc(event.id).update({
+  void updateEvent(Event event,String uId) async {
+      FireBaseUtils.getEventColleection(uId).doc(event.id).update({
         'title': event.title,
         'description': event.description,
         'image': event.image,
         'eventName': event.eventName,
         'time': event.time,
-        'date': event.date,
+        'date': event.date.millisecondsSinceEpoch,
       }).timeout(Duration(milliseconds: 50),onTimeout: ()
       {
         print('update successfully ');
@@ -90,9 +106,43 @@ class EventListProvider extends ChangeNotifier {
             textColor: AppColors.backgroundlight,
             fontSize: 16.0
         );
-        selectedIndex == 0 ? getAllEvents() : getFilterEvents();
+        selectedIndex == 0 ? getAllEvents(uId) : getFilterEvents(uId);
 
       });
       notifyListeners();
+  }
+  void deleteEvent(Event event, String uId) async {
+    try {
+      await FireBaseUtils.getEventColleection(uId).doc(event.id).delete().timeout(Duration(milliseconds: 50), onTimeout: () {
+        print('Event deleted successfully');
+        Fluttertoast.showToast(
+          msg: "Event deleted successfully",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: AppColors.primarylight,
+          textColor: AppColors.backgroundlight,
+          fontSize: 16.0,
+        );
+
+        // Update the event lists after deletion
+        if (selectedIndex == 0) {
+          getAllEvents(uId);
+        } else {
+          getFilterEvents(uId);
+        }
+      });
+    } catch (e) {
+      print("Error deleting event: $e");
+      Fluttertoast.showToast(
+        msg: "Error deleting event: $e",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: AppColors.primarylight,
+        textColor: AppColors.backgroundlight,
+        fontSize: 16.0,
+      );
+    } finally {
+      notifyListeners();
+    }
   }
 }

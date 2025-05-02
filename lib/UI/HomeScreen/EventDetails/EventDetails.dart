@@ -1,10 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:event_planning_app/Modal/Event.dart';
+import 'package:event_planning_app/Providers/EventListProvider.dart';
+import 'package:event_planning_app/Providers/UserProvider.dart';
 import 'package:event_planning_app/UI/HomeScreen/EventDetails/EditEvent.dart';
 import 'package:event_planning_app/Utils/AppAssets.dart';
 import 'package:event_planning_app/Utils/AppColors.dart';
 import 'package:event_planning_app/Utils/AppStyle.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class EventDetails extends StatefulWidget {
   static const routeName = 'EventDetails';
@@ -21,6 +24,8 @@ class _EventDetailsState extends State<EventDetails> {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     Event eventArgs = ModalRoute.of(context)?.settings.arguments as Event;
+    var eventListProvider = Provider.of<EventListProvider>(context);
+    var userProvider = Provider.of<UserProvider>(context);
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -29,7 +34,8 @@ class _EventDetailsState extends State<EventDetails> {
                 EditEvent.routeName,
                 arguments: eventArgs);
           }, icon: Icon(Icons.edit_note_outlined)),
-          IconButton(onPressed: () {}, icon: Icon(Icons.delete,color: Colors.red,))
+          IconButton(onPressed: () {eventListProvider.deleteEvent(eventArgs, userProvider.currentUser!.id);
+            Navigator.pop(context);}, icon: Icon(Icons.delete,color: Colors.red,))
         ],
         elevation: 0,
         backgroundColor: AppColors.backgroundlight,

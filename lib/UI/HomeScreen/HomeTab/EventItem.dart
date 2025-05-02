@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:event_planning_app/Modal/Event.dart';
 import 'package:event_planning_app/Providers/EventListProvider.dart';
+import 'package:event_planning_app/Providers/UserProvider.dart';
 import 'package:event_planning_app/Utils/AppAssets.dart';
 import 'package:event_planning_app/Utils/AppColors.dart';
 import 'package:event_planning_app/Utils/AppStyle.dart';
@@ -17,6 +18,7 @@ class EventItem extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     var eventListProvider = Provider.of<EventListProvider>(context);
+    var userProvider = Provider.of<UserProvider>(context);
     return Container(
       width: double.infinity,
       height: height * .26,
@@ -62,8 +64,8 @@ class EventItem extends StatelessWidget {
                 ),
                 IconButton(
                   onPressed: () {
-                    eventListProvider.updateIsFavoriteEvent(event);
-                    eventListProvider.getFavoriteEvents();
+                    eventListProvider.updateIsFavoriteEvent(event,userProvider.currentUser!.id);
+                    eventListProvider.getFavoriteEvents(userProvider.currentUser!.id);
                   },
                   icon: Image.asset(
                     event.isFavorite == true

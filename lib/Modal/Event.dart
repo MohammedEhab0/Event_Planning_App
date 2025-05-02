@@ -11,6 +11,7 @@ class Event {
   String time;
   DateTime date;
 
+
   bool isFavorite;
 
   Event(
@@ -22,6 +23,8 @@ class Event {
       required this.date,
       required this.time,
       this.isFavorite = false});
+
+
 
   Event.fromFireStore(Map<String, dynamic> data)
       : this(

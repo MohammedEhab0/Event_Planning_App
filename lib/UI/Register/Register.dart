@@ -1,4 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:event_planning_app/Modal/MyUser.dart';
+import 'package:event_planning_app/Providers/EventListProvider.dart';
+import 'package:event_planning_app/Providers/UserProvider.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeScreen.dart';
 import 'package:event_planning_app/UI/Login/Login.dart';
 import 'package:event_planning_app/UI/Onboarding/ToggleLanguage.dart';
@@ -8,9 +11,11 @@ import 'package:event_planning_app/Utils/AppAssets.dart';
 import 'package:event_planning_app/Utils/AppColors.dart';
 import 'package:event_planning_app/Utils/AppStyle.dart';
 import 'package:event_planning_app/Utils/DialogUtils.dart';
+import 'package:event_planning_app/Utils/FireBaseUtils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:provider/provider.dart';
 
 class Register extends StatefulWidget {
   static const routeName = 'Register';
@@ -23,9 +28,12 @@ class Register extends StatefulWidget {
 
 class _RegisterState extends State<Register> {
   TextEditingController nameController = TextEditingController(text: 'moooooo');
-  TextEditingController emailController = TextEditingController(text: 'mo@mo.com');
-  TextEditingController passwordController = TextEditingController(text: '123456');
-  TextEditingController rePasswordController = TextEditingController(text: '123456');
+  TextEditingController emailController =
+      TextEditingController(text: 'mo@mo.com');
+  TextEditingController passwordController =
+      TextEditingController(text: '123456');
+  TextEditingController rePasswordController =
+      TextEditingController(text: '123456');
   var formKey = GlobalKey<FormState>();
 
   @override
@@ -63,7 +71,8 @@ class _RegisterState extends State<Register> {
                   SizedBox(
                     height: height * .05,
                   ),
-                  CustomTextField(controller: nameController,
+                  CustomTextField(
+                    controller: nameController,
                     prefixIcon: Icon(Icons.person),
                     hintText: 'name'.tr(),
                     textInputType: TextInputType.name,
@@ -143,7 +152,9 @@ class _RegisterState extends State<Register> {
                     height: height * .02,
                   ),
                   CustomElevatedButton(
-                      onPressed: (){register();},
+                      onPressed: () {
+                        register();
+                      },
                       textButton: "create account".tr()),
                   SizedBox(
                     height: height * .02,
@@ -189,34 +200,68 @@ class _RegisterState extends State<Register> {
     if (formKey.currentState?.validate() == true) {
       DialogUtils.showLoading(context: context, message: '...Waiting ');
       try {
-        final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        final credential =
+            await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: emailController.text,
           password: passwordController.text,
         );
+        MyUser myUser = MyUser(
+            id: credential.user?.uid ?? '',
+            name: nameController.text,
+            email: emailController.text);
+        await FireBaseUtils.addUserToFireStore(myUser);
+        var userProvider = Provider.of<UserProvider>(context, listen: false);
+        userProvider.updateUser(myUser);
+        var eventListProvider =
+            Provider.of<EventListProvider>(context, listen: false);
+        eventListProvider.changeSelectedIndex(0, userProvider.currentUser!.id);
+        eventListProvider.getFavoriteEvents( userProvider.currentUser!.id);
         DialogUtils.hideLoading(context: context);
-        DialogUtils.showMessage(context: context, message: 'Register successfully',positiveAction: true,onPositiveAction: (){
-          Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
-        });
+        DialogUtils.showMessage(
+            context: context,
+            message: 'Register successfully',
+            positiveAction: true,
+            onPositiveAction: () {
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                HomeScreen.routeName,
+                    (Route<dynamic> route) => false,
+              );});
 
         print('Register successfully: ${credential.user?.uid}');
-
       } on FirebaseAuthException catch (e) {
         if (e.code == 'weak-password') {
           print('The password provided is too weak.');
         } else if (e.code == 'email-already-in-use') {
+          DialogUtils.hideLoading(context: context);
+          DialogUtils.showMessage(
+              context: context,
+              message: 'Register faild ',
+              negativeAction: true,
+              onNegativeAction: () {
+                Navigator.of(context).pop();
+              });
+          print('FirebaseAuthException: ${e.message}');
           print('The account already exists for that email.');
         } else {
           DialogUtils.hideLoading(context: context);
-          DialogUtils.showMessage(context: context, message: 'Register faild ',negativeAction: true,onNegativeAction: (){
-            Navigator.of(context).pop();
-          });
+          DialogUtils.showMessage(
+              context: context,
+              message: 'Register faild ',
+              negativeAction: true,
+              onNegativeAction: () {
+                Navigator.of(context).pop();
+              });
           print('FirebaseAuthException: ${e.message}');
         }
       } catch (e) {
         DialogUtils.hideLoading(context: context);
-        DialogUtils.showMessage(context: context, message: 'Register faild ',negativeAction: true,onNegativeAction: (){
-          Navigator.of(context).pop();
-        });
+        DialogUtils.showMessage(
+            context: context,
+            message: 'Register faild ',
+            negativeAction: true,
+            onNegativeAction: () {
+              Navigator.of(context).pop();
+            });
 
         print('Error: $e');
       }

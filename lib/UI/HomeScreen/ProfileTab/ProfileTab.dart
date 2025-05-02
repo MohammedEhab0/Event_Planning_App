@@ -1,5 +1,6 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:event_planning_app/UI/Login/Login.dart';
 import 'package:event_planning_app/Utils/AppAssets.dart';
 import 'package:event_planning_app/Utils/AppColors.dart';
 import 'package:event_planning_app/Utils/AppStyle.dart';
@@ -241,7 +242,9 @@ class _ProfileTabState extends State<ProfileTab> {
                     padding: EdgeInsets.symmetric(
                         vertical: height * .02, horizontal: width * .08),
                     backgroundColor: Colors.red),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushReplacementNamed(context, Login.routeName);
+                },
                 child: Row(
                   children: [
                     Text(

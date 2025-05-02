@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:event_planning_app/Modal/Event.dart';
 import 'package:event_planning_app/Providers/EventListProvider.dart';
+import 'package:event_planning_app/Providers/UserProvider.dart';
 import 'package:event_planning_app/UI/HomeScreen/EventDetails/EventDetails.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeTab/EventItem.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeTab/EventBarItem.dart';
@@ -19,11 +20,13 @@ class HomeTab extends StatefulWidget {
 class _HomeTabState extends State<HomeTab> {
   @override
   Widget build(BuildContext context) {
+    var userProvider = Provider.of<UserProvider>(context);
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     var eventListProvider = Provider.of<EventListProvider>(context);
+
     if (eventListProvider.eventList.isEmpty) {
-      eventListProvider.getAllEvents();
+      eventListProvider.getAllEvents(userProvider.currentUser!.id);
     }
 
     return Scaffold(
@@ -42,7 +45,7 @@ class _HomeTabState extends State<HomeTab> {
                 ),
                 SizedBox(height: height * .005),
                 Text(
-                  'Route Route  ',
+                  userProvider.currentUser!.name??'',
                   style: AppStyle.bold24White,
                 ),
               ],
@@ -99,7 +102,7 @@ class _HomeTabState extends State<HomeTab> {
                   length: eventListProvider.tabBarList.length,
                   child: TabBar(
                     onTap: (index) {
-                      eventListProvider.changeSelectedIndex(index);
+                      eventListProvider.changeSelectedIndex(index,userProvider.currentUser!.id);
                     },
                     labelPadding: EdgeInsets.all(height * .01),
                     dividerColor: Colors.transparent,

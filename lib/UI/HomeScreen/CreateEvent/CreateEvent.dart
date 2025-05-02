@@ -2,6 +2,7 @@
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:event_planning_app/Providers/EventListProvider.dart';
+import 'package:event_planning_app/Providers/UserProvider.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeTab/EventBarItem.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeTab/EventItem.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeTab/TabBarData.dart';
@@ -68,7 +69,7 @@ class _CreateEventState extends State<CreateEvent> {
     final height = MediaQuery.of(context).size.height;
     selectedImage = imageEventList[selectedIndex];
     selectedEventName = EventList[selectedIndex].text;
-
+    var userProvider = Provider.of<UserProvider>(context);
     var eventListProvider= Provider.of<EventListProvider>(context);
     return Scaffold(
       appBar: AppBar(
@@ -288,7 +289,20 @@ class _CreateEventState extends State<CreateEvent> {
                     );
 
                     // Add the event to Firestore
-                    FireBaseUtils.addEventToFireStore(event).timeout(
+                    FireBaseUtils.addEventToFireStore(event,userProvider.currentUser!.id).then((value) {
+                      print('event add successfully ');
+                      Fluttertoast.showToast(
+                          msg: "event add successfully",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb:60,
+                          backgroundColor: AppColors.primarylight,
+                          textColor: AppColors.backgroundlight,
+                          fontSize: 16.0
+                      );
+                      Navigator.pop(context);
+                      eventListProvider.getAllEvents(userProvider.currentUser!.id);
+                    },).timeout(
                       Duration(milliseconds: 500),onTimeout: (){
                         print('event add successfully ');
                         Fluttertoast.showToast(
@@ -300,8 +314,8 @@ class _CreateEventState extends State<CreateEvent> {
                             textColor: AppColors.backgroundlight,
                             fontSize: 16.0
                         );
-                        eventListProvider.getAllEvents();
-                        Navigator.pop(context);
+                        eventListProvider.getAllEvents(userProvider.currentUser!.id);
+
                     }
                       );
 

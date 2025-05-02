@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:event_planning_app/Providers/EventListProvider.dart';
+import 'package:event_planning_app/Providers/UserProvider.dart';
 import 'package:event_planning_app/UI/HomeScreen/EventDetails/EventDetails.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeTab/EventItem.dart';
 import 'package:event_planning_app/Utils/AppColors.dart';
@@ -16,8 +17,9 @@ class HeartTab extends StatelessWidget {
     final double width = MediaQuery.of(context).size.width;
     final double height = MediaQuery.of(context).size.height;
     var eventListProvider = Provider.of<EventListProvider>(context);
+    var userProvider = Provider.of<UserProvider>(context);
     if (eventListProvider.favoriteList.isEmpty) {
-      eventListProvider.getFavoriteEvents();
+      eventListProvider.getFavoriteEvents(userProvider.currentUser!.id);
     }
     return Scaffold(
       body: Column(

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:event_planning_app/Providers/EventListProvider.dart';
+import 'package:event_planning_app/Providers/UserProvider.dart';
 import 'package:event_planning_app/UI/HomeScreen/CreateEvent/CreateEvent.dart';
 import 'package:event_planning_app/UI/HomeScreen/EventDetails/EditEvent.dart';
 import 'package:event_planning_app/UI/HomeScreen/EventDetails/EventDetails.dart';
@@ -28,7 +29,7 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
     // Optionally disable network if needed
-    await FirebaseFirestore.instance.disableNetwork();
+   // await FirebaseFirestore.instance.disableNetwork();
   } catch (e) {
     print("Error initializing Firebase: $e");
     // Handle the error appropriately (e.g., show an error message)
@@ -43,7 +44,8 @@ void main() async {
       child: MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (context) => SettingProviders()),
-          ChangeNotifierProvider(create: (context) => EventListProvider())
+          ChangeNotifierProvider(create: (context) => EventListProvider()),
+          ChangeNotifierProvider(create: (context) => UserProvider())
         ],
         child: const MyApp(),
       ),

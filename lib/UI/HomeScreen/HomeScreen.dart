@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:event_planning_app/Providers/UserProvider.dart';
 import 'package:event_planning_app/UI/HomeScreen/CreateEvent/CreateEvent.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeTab/HomeTab.dart';
 import 'package:event_planning_app/UI/HomeScreen/MapTab/MapTab.dart';
@@ -8,6 +9,7 @@ import 'package:event_planning_app/UI/HomeScreen/HeartTab/HeartTab.dart';
 import 'package:event_planning_app/Utils/AppColors.dart';
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = 'HomeScreen';
@@ -30,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: bottomTabsList[selectIndex],
       bottomNavigationBar: Theme(

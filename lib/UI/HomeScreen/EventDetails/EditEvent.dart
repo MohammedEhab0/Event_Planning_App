@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:event_planning_app/Modal/Event.dart';
 import 'package:event_planning_app/Providers/EventListProvider.dart';
+import 'package:event_planning_app/Providers/UserProvider.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeScreen.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeTab/EventBarItem.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeTab/TabBarData.dart';
@@ -36,6 +37,18 @@ class _EditEventState extends State<EditEvent> {
     TabBarData(text: "Eating".tr(), iconTab: Icons.restaurant),
   ];
 
+  final List<String> eventListName = [
+    "Sport",
+    "Birthday".tr(),
+    "Meeting".tr(),
+    "Gaming".tr(),
+    "Workshop".tr(),
+    "Book Club".tr(),
+    "Exhibition".tr(),
+    "Holiday".tr(),
+    "Eating".tr(),
+  ];
+
   final List<String> imageEventList = [
     AppAssets.sport,
     AppAssets.birthday,
@@ -50,25 +63,38 @@ class _EditEventState extends State<EditEvent> {
 
   DateTime? selectedDate;
   String? selectedTime;
-
   String? formatTime;
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   String selectedImage = '';
   String selectedEventName = '';
   late Event eventArgs;
-
+  late int selectedIndex;
+  bool isInitialized = false;
   @override
   Widget build(BuildContext context) {
-    eventArgs = ModalRoute.of(context)?.settings.arguments as Event;
+    if (!isInitialized) {
+      eventArgs = ModalRoute.of(context)?.settings.arguments as Event;
+      selectedIndex = eventListName
+          .indexOf(eventArgs.eventName.tr());
+      selectedImage = imageEventList[selectedIndex];
+      titleController.text = eventArgs.title;
+      selectedDate=eventArgs.date;
+      selectedTime=eventArgs.time;
+      descriptionController.text =
+          eventArgs.description;
+      isInitialized = true;
+    }
+
+    var userProvider = Provider.of<UserProvider>(context);
     var eventListProvider = Provider.of<EventListProvider>(context);
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
-    int selectedIndex = 0;
-    selectedEventName = eventArgs.eventName;
-    selectedImage = eventArgs.image;
-    selectedTime = eventArgs.time;
-    selectedDate = eventArgs.date;
+    selectedImage = imageEventList[selectedIndex];
+    selectedEventName = EventList[selectedIndex].text.isEmpty
+
+        ? eventArgs.eventName
+        : EventList[selectedIndex].text;
 
     return Scaffold(
       appBar: AppBar(
@@ -101,10 +127,7 @@ class _EditEventState extends State<EditEvent> {
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                     image: DecorationImage(
-                        fit: BoxFit.fill,
-                        image: AssetImage(eventArgs.image.isNotEmpty
-                            ? eventArgs.image
-                            : imageEventList[selectedIndex]))),
+                        fit: BoxFit.fill, image: AssetImage(selectedImage))),
               ),
               SizedBox(height: height * .02),
               Container(
@@ -117,6 +140,7 @@ class _EditEventState extends State<EditEvent> {
                             setState(() {
                               selectedIndex = index;
                             });
+                            selectedIndex = index;
                           },
                           child: EventBarItem(
                               textSelectedStyle: AppStyle.bold16White,
@@ -146,12 +170,6 @@ class _EditEventState extends State<EditEvent> {
                       SizedBox(height: height * .02),
                       CustomTextField(
                         textInputType: TextInputType.text,
-                        validator: (text) {
-                          if (text == null || text.isEmpty) {
-                            return "please enter title";
-                          }
-                          return null;
-                        },
                         controller: titleController,
                         hintText: eventArgs.title,
                       ),
@@ -163,12 +181,6 @@ class _EditEventState extends State<EditEvent> {
                       SizedBox(height: height * .03),
                       CustomTextField(
                         textInputType: TextInputType.text,
-                        validator: (text) {
-                          if (text == null || text.isEmpty) {
-                            return "please Enter Description";
-                          }
-                          return null;
-                        },
                         controller: descriptionController,
                         maxLine: 4,
                         hintText: eventArgs.description,
@@ -273,22 +285,32 @@ class _EditEventState extends State<EditEvent> {
               CustomElevatedButton(
                 onPressed: () {
                   // Validate the form
-                  if (formKey.currentState?.validate() == true) {
+
                     Event event = Event(
                       id: eventArgs.id,
                       eventName: selectedEventName,
-                      title: titleController.text.isNotEmpty?titleController.text:eventArgs.title,
-                      description: descriptionController.text.isNotEmpty?descriptionController.text:eventArgs.description,
+                      title: titleController.text.isNotEmpty
+                          ? titleController.text
+                          : eventArgs.title,
+                      description: descriptionController.text.isNotEmpty
+                          ? descriptionController.text
+                          : eventArgs.description,
                       image: selectedImage,
-                      date: selectedDate!,
-                      time: selectedTime!,
+                      date: selectedDate ?? eventArgs.date,
+                      time: selectedTime!.isNotEmpty
+                          ? selectedTime!
+                          : eventArgs.time,
                     );
 
                     // Update the event to Firestore
-                    eventListProvider.updateEvent(event);
-                    Navigator.restorablePopAndPushNamed(context, HomeScreen.routeName);
+                    eventListProvider.updateEvent(
+                        event, userProvider.currentUser!.id);
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      HomeScreen.routeName,
+                      (Route<dynamic> route) => false,
+                    );
                   }
-                },
+                ,
                 textButton: "Edit Event".tr(),
               )
             ],
@@ -308,8 +330,6 @@ class _EditEventState extends State<EditEvent> {
       selectedDate = chooseDate;
 
       setState(() {});
-    } else {
-      selectedDate = eventArgs.date;
     }
     setState(() {});
   }
@@ -321,8 +341,6 @@ class _EditEventState extends State<EditEvent> {
       selectedTime = chooseTime.format(context);
       formatTime = selectedTime;
       setState(() {});
-    } else {
-      selectedTime = eventArgs.time;
     }
   }
 }
