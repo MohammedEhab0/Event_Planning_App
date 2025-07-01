@@ -7,6 +7,7 @@ import '../../Modal/MyUser.dart';
 import '../../Providers/EventListProvider.dart';
 import '../../Providers/UserProvider.dart';
 import '../../Utils/FireBaseUtils.dart';
+import '../HomeScreen/HomeScreen.dart';
 
 class LoginViewModel extends ChangeNotifier{
   var formKey = GlobalKey<FormState>();
@@ -33,7 +34,10 @@ class LoginViewModel extends ChangeNotifier{
         eventListProvider.getFavoriteEvents( userProvider.currentUser!.id);
        loginNav.hideLoading();
        loginNav.showMessage(message: 'Login successfully');
-
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          HomeScreen.routeName,
+              (Route<dynamic> route) => false,
+        );
         print('Login successfully ');
         print(credential.user?.uid ?? "");
       } on FirebaseAuthException catch (e) {

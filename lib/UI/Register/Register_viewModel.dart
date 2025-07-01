@@ -7,6 +7,7 @@ import '../../Modal/MyUser.dart';
 import '../../Providers/EventListProvider.dart';
 import '../../Providers/UserProvider.dart';
 import '../../Utils/FireBaseUtils.dart';
+import '../HomeScreen/HomeScreen.dart';
 
 class RegisterViewModel extends ChangeNotifier {
   var nameController = TextEditingController(text: 'moooooo');
@@ -38,14 +39,17 @@ class RegisterViewModel extends ChangeNotifier {
         eventListProvider.getFavoriteEvents(userProvider.currentUser!.id);
         registerNavigator.hideLoading();
         registerNavigator.showMessage(message: 'Register successfully');
-
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          HomeScreen.routeName,
+              (Route<dynamic> route) => false,
+        );
         print('Register successfully: ${credential.user?.uid}');
       } on FirebaseAuthException catch (e) {
         if (e.code == 'weak-password') {
           print('The password provided is too weak.');
         } else if (e.code == 'email-already-in-use') {
           registerNavigator.hideLoading();
-          registerNavigator.showMessage(message: 'Register faild ');
+          registerNavigator.showMessage(message: 'The account already exists for that email.');
           print('FirebaseAuthException: ${e.message}');
           print('The account already exists for that email.');
         } else {

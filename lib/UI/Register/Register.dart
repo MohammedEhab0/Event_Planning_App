@@ -225,9 +225,6 @@ class _RegisterState extends State<Register> implements RegisterNavigator{
   @override
   void navigate() {
     // TODO: implement navigate
-    Navigator.of(context).pushNamedAndRemoveUntil(
-      HomeScreen.routeName,
-          (Route<dynamic> route) => false,
-    );
+    Navigator.of(context).pop((Route<dynamic> route) => false,);
   }
 }
