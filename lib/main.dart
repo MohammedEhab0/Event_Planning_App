@@ -13,6 +13,8 @@ import 'package:event_planning_app/UI/Onboarding/IntroScreen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
+import 'UI/HomeScreen/CreateEvent/CreateEventProvider.dart';
+import 'UI/HomeScreen/CreateEvent/PickLocationScreen.dart';
 import 'UI/Onboarding/Onboarding.dart';
 import 'Utils/AppTheme.dart';
 import 'Providers/SettingProviders.dart';
@@ -45,7 +47,8 @@ void main() async {
         providers: [
           ChangeNotifierProvider(create: (context) => SettingProviders()),
           ChangeNotifierProvider(create: (context) => EventListProvider()),
-          ChangeNotifierProvider(create: (context) => UserProvider())
+          ChangeNotifierProvider(create: (context) => UserProvider()),
+          ChangeNotifierProvider(create: (context) => CreateEventProvider())
         ],
         child: const MyApp(),
       ),
@@ -79,6 +82,7 @@ class MyApp extends StatelessWidget {
         ForgetPassword.routeName: (context) => ForgetPassword(),
         EventDetails.routeName:(context) => EventDetails(),
         EditEvent.routeName:(context) => EditEvent(),
+        PickLocationScreen.routeName:(context) => PickLocationScreen(),
       },
     );
   }

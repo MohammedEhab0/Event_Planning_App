@@ -1,76 +1,42 @@
-
-
 import 'package:easy_localization/easy_localization.dart';
-import 'package:event_planning_app/Providers/EventListProvider.dart';
-import 'package:event_planning_app/Providers/UserProvider.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeTab/EventBarItem.dart';
-import 'package:event_planning_app/UI/HomeScreen/HomeTab/EventItem.dart';
-import 'package:event_planning_app/UI/HomeScreen/HomeTab/TabBarData.dart';
-import 'package:event_planning_app/UI/HomeScreen/HomeTab/TabBarItem.dart';
 import 'package:event_planning_app/UI/Widgets/CustomElevatedButton.dart';
 import 'package:event_planning_app/UI/Widgets/CustomTextField.dart';
-import 'package:event_planning_app/Utils/AppAssets.dart';
 import 'package:event_planning_app/Utils/AppColors.dart';
 import 'package:event_planning_app/Utils/AppStyle.dart';
-import 'package:event_planning_app/Utils/FireBaseUtils.dart';
 import 'package:flutter/material.dart';
-import 'package:event_planning_app/Modal/Event.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
+import 'CreateEventProvider.dart';
+import 'PickLocationScreen.dart';
 
 class CreateEvent extends StatefulWidget {
   static const routeName = 'CreateEvent';
-
 
   @override
   State<CreateEvent> createState() => _CreateEventState();
 }
 
+
 class _CreateEventState extends State<CreateEvent> {
+  late CreateEventProvider _createEventProvider;
+  @override
+  void initState() {
+    super.initState();
+    // Get the provider instance, but don't cause the widget to rebuild yet.
+    // 'listen: false' is crucial here in initState.
+    _createEventProvider = Provider.of<CreateEventProvider>(context, listen: false);
 
-  var formKey = GlobalKey<FormState>();
-  int selectedIndex = 0;
-  final List<TabBarData> EventList = [
-    TabBarData(text: "Sport".tr(), iconTab: Icons.directions_bike_sharp),
-    TabBarData(text: "Birthday".tr(), iconTab: Icons.cake),
-    TabBarData(text: "Meeting".tr(), iconTab: Icons.business_center),
-    TabBarData(text: "Gaming".tr(), iconTab: Icons.videogame_asset),
-    TabBarData(text: "Workshop".tr(), iconTab: Icons.work),
-    TabBarData(text: "Book Club".tr(), iconTab: Icons.book),
-    TabBarData(text: "Exhibition".tr(), iconTab: Icons.photo),
-    TabBarData(text: "Holiday".tr(), iconTab: Icons.beach_access),
-    TabBarData(text: "Eating".tr(), iconTab: Icons.restaurant),
-  ];
-
-  final List<String> imageEventList = [
-    AppAssets.sport,
-    AppAssets.birthday,
-    AppAssets.meeting,
-    AppAssets.gaming,
-    AppAssets.workshop,
-    AppAssets.bookClub,
-    AppAssets.exhibition,
-    AppAssets.holiday,
-    AppAssets.eating,
-  ];
-
-  DateTime? selectedDate;
-  String? selectedTime;
-
-  String? formatTime;
-  TextEditingController titleController = TextEditingController();
-  TextEditingController descriptionController = TextEditingController();
-  String selectedImage = '';
-  String selectedEventName = '';
-
+    // Explicitly call reset on the existing provider instance when the screen is initialized.
+    _createEventProvider.reset();
+  }
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
-    selectedImage = imageEventList[selectedIndex];
-    selectedEventName = EventList[selectedIndex].text;
-    var userProvider = Provider.of<UserProvider>(context);
-    var eventListProvider= Provider.of<EventListProvider>(context);
+    // We already moved the context out of CreateEventProvider constructor,
+    // so it's good to access it here.
+    var createEventProvider = Provider.of<CreateEventProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -92,80 +58,86 @@ class _CreateEventState extends State<CreateEvent> {
               Container(
                 height: height * .25,
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    image: DecorationImage(
-                        fit: BoxFit.fill,
-                        image: AssetImage(imageEventList[selectedIndex]))),
+                  borderRadius: BorderRadius.circular(16),
+                  image: DecorationImage(
+                    fit: BoxFit.fill,
+                    image: AssetImage(createEventProvider.imageEventList[
+                    createEventProvider.selectedIndex]),
+                  ),
+                ),
               ),
               SizedBox(height: height * .02),
-              Container(
+              SizedBox( // Changed Container to SizedBox for better fixed height control for ListView
                 height: height * .06,
                 child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemBuilder: (context, index) {
-                      return InkWell(
-                          onTap: () {
-                            setState(() {
-                              selectedIndex = index;
-                            });
-                          },
-                          child: EventBarItem(
-                              textSelectedStyle: AppStyle.bold16White,
-                              textUnSelectedStyle: AppStyle.bold16PrimaryLight,
-                              selectedColor: AppColors.primarylight,
-                              unSelectedColor: AppColors.white,
-                              text: EventList[index].text,
-                              tabIcon: EventList[index].iconTab!,
-                              isSelected:
-                                  selectedIndex == index ? true : false));
-                    },
-                    separatorBuilder: (context, index) {
-                      return SizedBox(height: height * .02);
-                    },
-                    itemCount: EventList.length),
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (context, index) {
+                    return InkWell(
+                      onTap: () {
+                        createEventProvider.updateSelectedEventData(index);
+                      },
+                      child: EventBarItem(
+                        textSelectedStyle: AppStyle.bold16White,
+                        textUnSelectedStyle: AppStyle.bold16PrimaryLight,
+                        selectedColor: AppColors.primarylight,
+                        unSelectedColor: AppColors.white,
+                        text: createEventProvider.EventList[index].text,
+                        tabIcon: createEventProvider.EventList[index].iconTab!,
+                        isSelected: createEventProvider.selectedIndex == index,
+                      ),
+                    );
+                  },
+                  separatorBuilder: (context, index) {
+                    // This separator for horizontal list view should be SizedBox(width: ...)
+                    // not height:
+                    return SizedBox(width: width * .02); // Adjusted for horizontal separation
+                  },
+                  itemCount: createEventProvider.EventList.length,
+                ),
               ),
               SizedBox(height: height * .02),
               Form(
-                  key: formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        'title'.tr(),
-                        style: AppStyle.light20PrimaryLight,
-                      ),
-                      SizedBox(height: height * .02),
-                      CustomTextField(
-                        textInputType: TextInputType.text,
-                        validator: (text) {
-                          if (text == null || text.isEmpty) {
-                            return "please enter title";
-                          }
-                          return null;
-                        },
-                        controller: titleController,
-                        hintText: "title".tr(),
-                      ),
-                      SizedBox(height: height * .03),
-                      Text(
-                        "description".tr(),
-                        style: AppStyle.light20PrimaryLight,
-                      ),
-                      SizedBox(height: height * .03),
-                      CustomTextField(
-                        textInputType: TextInputType.text,
-                        validator: (text) {
-                          if (text == null || text.isEmpty) {
-                            return "please Enter Description";
-                          }
-                          return null;
-                        },
-                        controller: descriptionController,
-                        maxLine: 4,
-                        hintText: "description".tr(),
-                      )
-                    ],
-                  )),
+                key: createEventProvider.formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'title'.tr(),
+                      style: AppStyle.light20PrimaryLight,
+                    ),
+                    SizedBox(height: height * .02),
+                    CustomTextField(
+                      textInputType: TextInputType.text,
+                      validator: (text) {
+                        if (text == null || text.isEmpty) {
+                          return "please enter title".tr(); // Localize validation messages
+                        }
+                        return null;
+                      },
+                      controller: createEventProvider.titleController,
+                      hintText: "title".tr(),
+                    ),
+                    SizedBox(height: height * .03),
+                    Text(
+                      "description".tr(),
+                      style: AppStyle.light20PrimaryLight,
+                    ),
+                    SizedBox(height: height * .03),
+                    CustomTextField(
+                      textInputType: TextInputType.text,
+                      validator: (text) {
+                        if (text == null || text.isEmpty) {
+                          return "please Enter Description".tr(); // Localize validation messages
+                        }
+                        return null;
+                      },
+                      controller: createEventProvider.descriptionController,
+                      maxLine: 4,
+                      hintText: "description".tr(),
+                    )
+                  ],
+                ),
+              ),
               SizedBox(height: height * .02),
               Row(
                 children: [
@@ -180,17 +152,19 @@ class _CreateEventState extends State<CreateEvent> {
                   ),
                   Spacer(),
                   TextButton(
-                      onPressed: () {
-                        chooseDate();
-                      },
-                      child: Text(
-                        selectedDate == null
-                            ? "choose Data".tr()
-                            : "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}",
-                        style: AppStyle.bold16PrimaryLight.copyWith(
-                            decoration: TextDecoration.underline,
-                            decorationColor: AppColors.primarylight),
-                      ))
+                    onPressed: () {
+                      // FIX: Call the method with () and pass context
+                      createEventProvider.chooseDate(context);
+                    },
+                    child: Text(
+                      createEventProvider.selectedDate == null
+                          ? "choose Data".tr()
+                          : "${createEventProvider.selectedDate!.day}/${createEventProvider.selectedDate!.month}/${createEventProvider.selectedDate!.year}",
+                      style: AppStyle.bold16PrimaryLight.copyWith(
+                          decoration: TextDecoration.underline,
+                          decorationColor: AppColors.primarylight),
+                    ),
+                  )
                 ],
               ),
               Row(
@@ -206,15 +180,19 @@ class _CreateEventState extends State<CreateEvent> {
                   ),
                   Spacer(),
                   TextButton(
-                      onPressed: () {
-                        chooseTime();
-                      },
-                      child: Text(
-                        formatTime == null ? "choose Time".tr() : formatTime!,
-                        style: AppStyle.bold16PrimaryLight.copyWith(
-                            decoration: TextDecoration.underline,
-                            decorationColor: AppColors.primarylight),
-                      ))
+                    onPressed: () {
+                      // FIX: Call the method with () and pass context
+                      createEventProvider.chooseTime(context);
+                    },
+                    child: Text(
+                      createEventProvider.formatTime == null
+                          ? "choose Time".tr()
+                          : createEventProvider.formatTime!,
+                      style: AppStyle.bold16PrimaryLight.copyWith(
+                          decoration: TextDecoration.underline,
+                          decorationColor: AppColors.primarylight),
+                    ),
+                  )
                 ],
               ),
               SizedBox(height: height * .02),
@@ -223,21 +201,28 @@ class _CreateEventState extends State<CreateEvent> {
                 style: AppStyle.light20PrimaryLight,
               ),
               SizedBox(height: height * .02),
-              Container(padding:EdgeInsets.all(width *.01) ,
+              Container(
+                padding: EdgeInsets.all(width * .01),
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    border:
-                        Border.all(color: AppColors.primarylight, width: 1)),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.primarylight, width: 1),
+                ),
                 child: Row(
                   children: [
                     Container(
                       decoration: BoxDecoration(
-                        color: AppColors.primarylight, // Set the background color here
-                        borderRadius: BorderRadius.circular(16), // Optional: Add border radius for rounded corners
+                        color: AppColors.primarylight,
+                        borderRadius: BorderRadius.circular(16),
                       ),
                       child: IconButton(
                         padding: EdgeInsets.all(width * .02),
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.pushNamed(
+                            context,
+                            PickLocationScreen.routeName,
+                          );
+                          // TODO: Implement location selection logic here
+                        },
                         icon: Icon(
                           Icons.location_searching_outlined,
                           color: AppColors.white,
@@ -245,9 +230,13 @@ class _CreateEventState extends State<CreateEvent> {
                       ),
                     ),
                     SizedBox(width: height * .02),
-                    Text(
-                      "choose Event location".tr(),
-                      style: AppStyle.bold16PrimaryLight,
+                    Expanded(
+                      child: Text(
+                        createEventProvider.eventLocation == null
+                            ? 'Choose Event Location'
+                            : ' ${createEventProvider.city}, ${createEventProvider.country}',
+                        style: AppStyle.bold16PrimaryLight,
+                      ),
                     ),
                     Spacer(),
                     Icon(
@@ -260,66 +249,8 @@ class _CreateEventState extends State<CreateEvent> {
               SizedBox(height: height * .03),
               CustomElevatedButton(
                 onPressed: () {
-                  // Validate the form
-                  if (formKey.currentState?.validate() == true) {
-                    // Check if a date has been selected
-                    if (selectedDate == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Please choose a date")),
-                      );
-                      return;
-                    }
-
-                    // Check if a time has been selected
-                    if (formatTime == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Please choose a time")),
-                      );
-                      return;
-                    }
-
-                    // Create the event object
-                    Event event = Event(
-                      eventName: selectedEventName,
-                      title: titleController.text,
-                      description: descriptionController.text,
-                      image: selectedImage,
-                      date: selectedDate!,
-                      time: formatTime!,
-                    );
-
-                    // Add the event to Firestore
-                    FireBaseUtils.addEventToFireStore(event,userProvider.currentUser!.id).then((value) {
-                      print('event add successfully ');
-                      Fluttertoast.showToast(
-                          msg: "event add successfully",
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.CENTER,
-                          timeInSecForIosWeb:60,
-                          backgroundColor: AppColors.primarylight,
-                          textColor: AppColors.backgroundlight,
-                          fontSize: 16.0
-                      );
-                      Navigator.pop(context);
-                      eventListProvider.getAllEvents(userProvider.currentUser!.id);
-                    },).timeout(
-                      Duration(milliseconds: 500),onTimeout: (){
-                        print('event add successfully ');
-                        Fluttertoast.showToast(
-                            msg: "event add successfully",
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.CENTER,
-                            timeInSecForIosWeb:60,
-                            backgroundColor: AppColors.primarylight,
-                            textColor: AppColors.backgroundlight,
-                            fontSize: 16.0
-                        );
-                        eventListProvider.getAllEvents(userProvider.currentUser!.id);
-
-                    }
-                      );
-
-                  }
+                  // FIX: Call the method with () and pass context
+                  createEventProvider.createEvent(context);
                 },
                 textButton: "add Event".tr(),
               )
@@ -328,31 +259,5 @@ class _CreateEventState extends State<CreateEvent> {
         ),
       ),
     );
-  }
-
-  chooseDate() async {
-    var chooseDate = await showDatePicker(
-        context: context,
-        initialDate: DateTime.now(),
-        firstDate: DateTime.now(),
-        lastDate: DateTime.now().add(Duration(days: 365)));
-    selectedDate = chooseDate;
-    setState(() {});
-  }
-
-  chooseTime() async {
-
-    var chooseTime = await showTimePicker(context: context, initialTime: TimeOfDay.now());
-
-    if (chooseTime != null) {
-
-      selectedTime = chooseTime.format(context);
-
-      formatTime = selectedTime;
-
-      setState(() {});
-
-    }
-
   }
 }
