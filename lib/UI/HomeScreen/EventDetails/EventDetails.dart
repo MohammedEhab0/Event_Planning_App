@@ -136,8 +136,8 @@ class _EventDetailsState extends State<EventDetails> {
                       ),
                     ),
                     SizedBox(width: height * .02),
-                    Text(
-                      "choose Event location".tr(),
+                    Text(overflow: TextOverflow.ellipsis,
+                      "${eventArgs.country},${eventArgs.city}",
                       style: AppStyle.bold16PrimaryLight,
                     ),
                     Spacer(),
