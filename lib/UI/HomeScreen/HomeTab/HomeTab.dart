@@ -1,16 +1,13 @@
-import 'package:easy_localization/easy_localization.dart';
-import 'package:event_planning_app/Modal/Event.dart';
 import 'package:event_planning_app/Providers/EventListProvider.dart';
 import 'package:event_planning_app/Providers/UserProvider.dart';
 import 'package:event_planning_app/UI/HomeScreen/EventDetails/EventDetails.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeTab/EventItem.dart';
 import 'package:event_planning_app/UI/HomeScreen/HomeTab/EventBarItem.dart';
-import 'package:event_planning_app/Utils/AppAssets.dart';
 import 'package:event_planning_app/Utils/AppColors.dart';
 import 'package:event_planning_app/Utils/AppStyle.dart';
 import 'package:flutter/material.dart';
-import 'package:event_planning_app/UI/HomeScreen/HomeTab/TabBarData.dart';
 import 'package:provider/provider.dart';
+
 
 class HomeTab extends StatefulWidget {
   @override
@@ -20,6 +17,7 @@ class HomeTab extends StatefulWidget {
 class _HomeTabState extends State<HomeTab> {
   @override
   Widget build(BuildContext context) {
+
     var userProvider = Provider.of<UserProvider>(context);
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
@@ -27,6 +25,7 @@ class _HomeTabState extends State<HomeTab> {
 
     if (eventListProvider.eventList.isEmpty) {
       eventListProvider.getAllEvents(userProvider.currentUser!.id);
+
     }
 
     return Scaffold(
@@ -38,12 +37,12 @@ class _HomeTabState extends State<HomeTab> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: height * .01),
+                SizedBox(height: height * .02),
                 Text(
                   'Welcome Back ✨ ',
                   style: AppStyle.bold14White,
                 ),
-                SizedBox(height: height * .005),
+                SizedBox(height: height * .01),
                 Text(
                   userProvider.currentUser!.name??'',
                   style: AppStyle.bold24White,
@@ -74,7 +73,7 @@ class _HomeTabState extends State<HomeTab> {
         children: [
           Container(
             padding: EdgeInsets.symmetric(horizontal: width * .04),
-            height: height * .136,
+            height: height * .1,
             decoration: BoxDecoration(
               color: Theme.of(context).primaryColor,
               borderRadius: BorderRadius.only(
@@ -84,20 +83,8 @@ class _HomeTabState extends State<HomeTab> {
             ),
             child: Column(
               children: [
-                SizedBox(height: height * .007),
-                Row(
-                  children: [
-                    ImageIcon(
-                      AssetImage(AppAssets.map),
-                      color: AppColors.backgroundlight,
-                    ),
-                    Text(
-                      'Cairo, Egypt ',
-                      style: AppStyle.bold14White,
-                    ),
-                  ],
-                ),
-                SizedBox(height: height * .01),
+
+                SizedBox(height: height * .015),
                 DefaultTabController(
                   length: eventListProvider.tabBarList.length,
                   child: TabBar(

@@ -13,6 +13,7 @@ import '../../../Utils/AppAssets.dart';
 import '../../../Utils/AppColors.dart';
 import '../../../Utils/FireBaseUtils.dart';
 import '../HomeTab/TabBarData.dart';
+import '../MapTab/MapTabProvider.dart';
 
 class CreateEventProvider extends ChangeNotifier {
   CreateEventProvider(){
@@ -127,6 +128,7 @@ class CreateEventProvider extends ChangeNotifier {
   void createEvent(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final eventListProvider = Provider.of<EventListProvider>(context, listen: false);
+    final mapEventsProvider = Provider.of<MapsTabProvider>(context, listen: false);
 
     if (formKey.currentState?.validate() == true) {
       if (selectedDate == null) {
@@ -174,6 +176,7 @@ class CreateEventProvider extends ChangeNotifier {
         );
         Navigator.pop(context); // This context should also come from the method parameter
         eventListProvider.getAllEvents(userProvider.currentUser!.id);
+        mapEventsProvider.getAllEvents(userProvider.currentUser!.id);
       }).timeout(
         const Duration(milliseconds: 500),
         onTimeout: () {

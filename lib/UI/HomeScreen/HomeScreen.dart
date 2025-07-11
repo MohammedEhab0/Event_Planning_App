@@ -11,6 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:provider/provider.dart';
 
+import 'MapTab/MapTabProvider.dart';
+
 class HomeScreen extends StatefulWidget {
   static const routeName = 'HomeScreen';
 
@@ -32,7 +34,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       body: bottomTabsList[selectIndex],
       bottomNavigationBar: Theme(

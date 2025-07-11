@@ -15,6 +15,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 import 'UI/HomeScreen/CreateEvent/CreateEventProvider.dart';
 import 'UI/HomeScreen/CreateEvent/PickLocationScreen.dart';
+import 'UI/HomeScreen/MapTab/MapTabProvider.dart';
 import 'UI/Onboarding/Onboarding.dart';
 import 'Utils/AppTheme.dart';
 import 'Providers/SettingProviders.dart';
@@ -48,7 +49,10 @@ void main() async {
           ChangeNotifierProvider(create: (context) => SettingProviders()),
           ChangeNotifierProvider(create: (context) => EventListProvider()),
           ChangeNotifierProvider(create: (context) => UserProvider()),
-          ChangeNotifierProvider(create: (context) => CreateEventProvider())
+          ChangeNotifierProvider(create: (context) => CreateEventProvider()),
+          ChangeNotifierProvider(create: (context) => MapsTabProvider()
+
+          ),
         ],
         child: const MyApp(),
       ),
